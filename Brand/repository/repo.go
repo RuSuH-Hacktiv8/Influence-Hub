@@ -16,3 +16,12 @@ func (r Repository) AddBrand(brand models.Brand) (uint, error) {
 	result := r.DB.Create(&brand)
 	return brand.ID, result.Error
 }
+
+func (r Repository) FindByEmail(email string) (models.Brand, error) {
+	var brand models.Brand
+	result := r.DB.First(&brand, "email = ?", email)
+	if result.Error != nil {
+		return models.Brand{}, result.Error
+	}
+	return brand, nil
+}
