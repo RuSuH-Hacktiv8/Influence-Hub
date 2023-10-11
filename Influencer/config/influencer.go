@@ -2,11 +2,12 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func ConnectDb() *mongo.Database {
@@ -21,7 +22,12 @@ func ConnectDb() *mongo.Database {
 		log.Fatal(err)
 	}
 
-	db := client.Database(os.Getenv("MONGODB_NAME"))
+	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		panic(err)
+	}
+	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
+
+	db := client.Database("influence_hub")
 
 	return db
 

@@ -12,8 +12,8 @@ func (r *Repository) AddInfluencer(influencer models.Influencer) (primitive.Obje
 
 	result, err := collection.InsertOne(context.TODO(), influencer)
 	if err != nil {
-		return nil, err
+		return primitive.NilObjectID, err
 	}
 
-	return result.InsertedID, nil
+	return result.InsertedID.(primitive.ObjectID), nil
 }
