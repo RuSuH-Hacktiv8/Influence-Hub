@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"influence-hub-influencer/middleware"
 	"influence-hub-influencer/models"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -24,11 +26,26 @@ func (cn *Controller) Register(c echo.Context) error {
 	influencer.Password = string(hashedPassword)
 
 	// get jwt from id returned by AddInfluencer
-	if _, err := cn.Controller.AddInfluencer(*influencer); err != nil {
+	resultID, err := cn.Controller.AddInfluencer(*influencer)
+
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
+			"message": "Failed to register",
 		})
 	}
 
-	return c.JSON(http.StatusCreated, "success register")
+	secretKey := os.Getenv("SECRET_KEY")
+
+	influencer.ID = resultID
+	token, err := middleware.GenerateJWT(influencer, secretKey)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to generate JWT",
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Register successful",
+		"token":   token,
+	})
 }
