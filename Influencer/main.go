@@ -5,6 +5,7 @@ import (
 	"influence-hub-influencer/controller"
 	"influence-hub-influencer/repository"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,5 +16,6 @@ func main() {
 
 	e := echo.New()
 	e.POST("/register", controller.Register)
+	e.POST("/login", controller.Login)
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -32,7 +32,7 @@ func (cn *Controller) Login(c echo.Context) error {
 	}
 
 	// If the passwords match, generate a JWT for the user and return it in the response.
-	token, err := middleware.GenerateJWT(fetchedInfluencer, "secret")
+	token, err := middleware.GenerateJWT(&fetchedInfluencer, "secret")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to generate JWT",

@@ -25,7 +25,15 @@ func (cn *Controller) Register(c echo.Context) error {
 
 	influencer.Password = string(hashedPassword)
 
-	// get jwt from id returned by AddInfluencer
+	followers, err := middleware.GetInstagramFollowers(influencer.InstagramUsername)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to fetch Instagram followers",
+		})
+	}
+
+	influencer.InstagramFollowers = followers
+
 	resultID, err := cn.Controller.AddInfluencer(*influencer)
 
 	if err != nil {
@@ -37,6 +45,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	secretKey := os.Getenv("SECRET_KEY")
 
 	influencer.ID = resultID
+
 	token, err := middleware.GenerateJWT(influencer, secretKey)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
