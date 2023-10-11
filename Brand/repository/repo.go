@@ -25,3 +25,12 @@ func (r Repository) FindByEmail(email string) (models.Brand, error) {
 	}
 	return brand, nil
 }
+
+func (r Repository) FindById(id int) (models.Brand, error) {
+	var brand models.Brand
+	result := r.DB.First(&brand, "id = ?", id)
+	if result.Error != nil {
+		return models.Brand{}, result.Error
+	}
+	return brand, nil
+}
