@@ -16,5 +16,6 @@ func main() {
 
 	e := echo.New()
 	e.POST("/register", controller.Register)
+	e.POST("/login", controller.Login)
 	e.Logger.Fatal(e.Start(":8080"))
 }
