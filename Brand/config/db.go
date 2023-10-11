@@ -3,13 +3,14 @@ package config
 import (
 	"influence-hub-brand/models"
 	"log"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func ConnectDb() *gorm.DB {
-	url := "postgres://postgres.sjjxkceqhpwrokzycxvp:oq29op4sg7XoTDsg@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+	url := os.Getenv("DB_POSTGRESQL")
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
