@@ -5,6 +5,7 @@ import (
 	"influence-hub-influencer/controller"
 	"influence-hub-influencer/repository"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 )
 
