@@ -11,9 +11,10 @@ import (
 func main() {
 	db := config.ConnectDb()
 	repository := repository.NewRepository(db)
-	controller := controller.NewController(repository)
+	bc := controller.NewBrandController(repository)
 
 	e := echo.New()
-	e.POST("/register", controller.Register)
+	e.POST("/register", bc.Register)
+	e.POST("/login", bc.Login)
 	e.Logger.Fatal(e.Start(":8081"))
 }
