@@ -10,9 +10,9 @@ contoh:
 4. setelah selesai, jalankan:
 ```
     cd ..
+    git pull
     git add .
     git commit -m "nama commit"
-    git pull
     git push
 ```
 5. lalu tutup terminal atau jalankan `cd .\[folder]\` sesuai dengan module mana yang ingin diedit selanjutnya
