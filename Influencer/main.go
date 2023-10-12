@@ -17,5 +17,7 @@ func main() {
 	e := echo.New()
 	e.POST("/register", controller.Register)
 	e.POST("/login", controller.Login)
+	e.GET("/campaign", controller.ShowCampaign)
+	e.POST("/campaign", controller.ApplyCampaign)
 	e.Logger.Fatal(e.Start(":8080"))
 }
