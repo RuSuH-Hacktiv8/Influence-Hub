@@ -68,7 +68,7 @@ func (cn *Controller) Register(c echo.Context) error {
 
 func registerNotificationRequest(c echo.Context, influencer *models.Influencer) error {
 	// change the url when deploying on gcp
-	url := "localhost:8082"
+	url := "http://localhost:8082"
 	endpoint := "/mails/success_register"
 	j, err := json.Marshal(map[string]any{
 		"username": influencer.Name,
