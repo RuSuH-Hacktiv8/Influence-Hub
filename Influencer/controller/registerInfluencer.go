@@ -22,6 +22,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to hash password",
+			"error":   err.Error(),
 		})
 	}
 
@@ -31,6 +32,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to fetch Instagram followers",
+			"error":   err.Error(),
 		})
 	}
 
@@ -41,6 +43,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to register",
+			"error":   err.Error(),
 		})
 	}
 
@@ -52,11 +55,13 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to generate JWT",
+			"error":   err.Error(),
 		})
 	}
 	if err := registerNotificationRequest(c, influencer); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed sending email notification",
+			"error":   err.Error(),
 		})
 	}
 
