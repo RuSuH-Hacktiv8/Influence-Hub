@@ -3,6 +3,7 @@ package main
 import (
 	"influence-hub-notification/handler"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 )
 

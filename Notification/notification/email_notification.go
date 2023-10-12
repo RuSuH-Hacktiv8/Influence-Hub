@@ -19,7 +19,7 @@ func SuccessRegisterEmail(user *models.User) error {
 	}
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, string(htmlContent))
 
-	client := sendgrid.NewSendClient("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") // Ganti dengan API key SendGrid kamu
+	client := sendgrid.NewSendClient(os.Getenv("SEND_GRID_KEY")) // Ganti dengan API key SendGrid kamu
 	_, err = client.Send(message)
 
 	return err
@@ -36,7 +36,7 @@ func SuccessApplyCampaign(user *models.User) error {
 	}
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, string(htmlContent))
 
-	client := sendgrid.NewSendClient("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")
+	client := sendgrid.NewSendClient(os.Getenv("SEND_GRID_KEY"))
 	_, err = client.Send(message)
 
 	return err
