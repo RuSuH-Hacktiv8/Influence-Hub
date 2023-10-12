@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"influence-hub-notification/models"
 	"os"
 
 	"github.com/sendgrid/sendgrid-go"
