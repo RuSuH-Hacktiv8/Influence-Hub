@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
 	"influence-hub-influencer/middleware"
 	"influence-hub-influencer/models"
 	"net/http"
@@ -20,6 +22,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to hash password",
+			"error":   err.Error(),
 		})
 	}
 
@@ -29,6 +32,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to fetch Instagram followers",
+			"error":   err.Error(),
 		})
 	}
 
@@ -39,6 +43,7 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to register",
+			"error":   err.Error(),
 		})
 	}
 
@@ -50,6 +55,13 @@ func (cn *Controller) Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to generate JWT",
+			"error":   err.Error(),
+		})
+	}
+	if err := registerNotificationRequest(c, influencer); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed sending email notification",
+			"error":   err.Error(),
 		})
 	}
 
@@ -57,4 +69,35 @@ func (cn *Controller) Register(c echo.Context) error {
 		"message": "Register successful",
 		"token":   token,
 	})
+}
+
+func registerNotificationRequest(c echo.Context, influencer *models.Influencer) error {
+	// change the url when deploying on gcp
+	url := "http://localhost:8082"
+	endpoint := "/mails/success_register"
+	j, err := json.Marshal(map[string]any{
+		"username": influencer.Name,
+		"email":    influencer.Email,
+		"role":     "influencer",
+	})
+	if err != nil {
+		return err
+	}
+	payload := bytes.NewBuffer(j)
+	req, _ := http.NewRequest("POST", url+endpoint, payload)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]any{
+			"error":   err.Error(),
+			"details": "error at sending request to notif server",
+		})
+		return err
+	}
+	defer res.Body.Close()
+	var responseMap map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, responseMap)
 }
