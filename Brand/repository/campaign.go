@@ -36,9 +36,9 @@ func (r *Repository) AddCampaign(campaign models.Campaign) (models.Campaign, err
 	return newCampaign, query.Error
 }
 
-func (r *Repository) GetCampaign(id int) ([]models.Campaign, error) {
+func (r *Repository) GetCampaign(brandid int) ([]models.Campaign, error) {
 	campaign := []models.Campaign{}
-	query := r.DB.Table("campaigns").Where("BrandID=?", id).Find(campaign)
+	query := r.DB.Table("campaigns").Where("BrandID=?", brandid).Find(campaign)
 	if query.Error != nil {
 		if query.Error == gorm.ErrRecordNotFound {
 			return []models.Campaign{}, errors.New("User not found")
@@ -50,10 +50,28 @@ func (r *Repository) GetCampaign(id int) ([]models.Campaign, error) {
 	return campaign, nil
 }
 
-func (r *Repository) UpdateCampaign() {
+func (r *Repository) EditCampaign(id uint, updatedCampaign models.Campaign) (models.Campaign, error) {
+	var existingCampaign models.Campaign
 
+	if err := r.DB.First(&existingCampaign, id).Error; err != nil {
+		return models.Campaign{}, err
+	}
+
+	r.DB.Model(&existingCampaign).Updates(updatedCampaign)
+
+	return existingCampaign, nil
 }
 
-func (r *Repository) DeleteCampaign() {
+func (r *Repository) DeletesCampaign(id uint) error {
+	var existingCampaign models.Campaign
 
+	if err := r.DB.First(&existingCampaign, id).Error; err != nil {
+		return err
+	}
+
+	if err := r.DB.Delete(&existingCampaign).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

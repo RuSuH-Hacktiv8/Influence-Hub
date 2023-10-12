@@ -17,6 +17,57 @@ func NewCampaignController(repo repository.Repository) CampaignController {
 	return CampaignController{repo}
 }
 
+func (cc CampaignController) CreateCampaign(c echo.Context) error {
+	campaign := new(models.Campaign)
+
+	if err := c.Bind(campaign); err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid request")
+	}
+
+	newCampaign, err := cc.Repo.AddCampaign(*campaign)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusCreated, newCampaign)
+}
+
+func (cc CampaignController) UpdateCampaign(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	campaign := new(models.Campaign)
+
+	if err := c.Bind(campaign); err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid request")
+	}
+
+	result, err := cc.Repo.EditCampaign(uint(id), *campaign)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, result)
+
+}
+
+func (cc CampaignController) DeleteCampaign(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	if err := cc.Repo.DeletesCampaign(uint(id)); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusNoContent, echo.Map{
+		"message": "success delete campaign",
+	})
+}
+
 func (c *CampaignController) AddCampaign(e echo.Context) error {
 	campaign := new(models.Campaign)
 	if err := e.Bind(campaign); err != nil {
