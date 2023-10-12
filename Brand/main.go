@@ -15,12 +15,15 @@ func main() {
 	bc := controller.NewBrandController(repository)
 	// middleware := middleware.NewAuth(repository)
 	cc := controller.NewCampaignController(repository)
+	ct := controller.NewContractController(repository)
 
 	e := echo.New()
 	e.POST("/register", bc.Register)
 	e.POST("/login", bc.Login)
 	e.POST("/campaign", cc.AddCampaign)
 	e.GET("/campaign/:id", cc.GetCampaign)
+	e.GET("/campaign", cc.GetAllCampaign)
+	e.POST("/contract", ct.AddContract)
 
 	e.Logger.Fatal(e.Start(":8081"))
 }

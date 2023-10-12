@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -10,9 +9,14 @@ import (
 
 func ConnectDb() *gorm.DB {
 	url := os.Getenv("DB_POSTGRESQL")
-	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN: url,
+
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{})
+
 	if err != nil {
-		log.Fatal(err)
+		panic("failed to connect database")
 	}
 
 	return db

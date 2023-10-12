@@ -109,3 +109,13 @@ func (c *CampaignController) GetCampaign(e echo.Context) error {
 		"campaigns": campaigns,
 	})
 }
+
+func (c *CampaignController) GetAllCampaign(e echo.Context) error {
+	// Panggil metode GetAllCampaign dari repository
+	campaigns, err := c.Repo.GetAllCampaign()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return e.JSON(http.StatusOK, campaigns)
+}
