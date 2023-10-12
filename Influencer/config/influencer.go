@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,7 +13,7 @@ import (
 
 func ConnectDb() *mongo.Database {
 
-	uri := "mongodb+srv://influenza:influenza123456@influencer.hyh4qyr.mongodb.net/?retryWrites=true&w=majority"
+	uri := os.Getenv("MONGO_DB")
 
 	if uri == "" {
 		log.Fatal("You must set your 'MONGODB_URI' environment variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")

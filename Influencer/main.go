@@ -19,5 +19,6 @@ func main() {
 	e.POST("/login", controller.Login)
 	e.GET("/campaign", controller.ShowCampaign)
 	e.POST("/campaign", controller.ApplyCampaign)
+	e.POST("/payment", controller.RequestPayment)
 	e.Logger.Fatal(e.Start(":8080"))
 }
