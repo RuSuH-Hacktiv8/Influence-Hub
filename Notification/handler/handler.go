@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"influence-hub-notification/models"
 	"influence-hub-notification/notification"
 	"net/http"
@@ -25,7 +26,9 @@ func SuccessRegister(c echo.Context) error {
 		})
 		return err
 	}
-	return c.JSON(http.StatusOK, "email sent")
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": fmt.Sprintf("email Sent to %s", user.Email),
+	})
 }
 
 func SuccessApplyCampaign(c echo.Context) error {
@@ -45,7 +48,9 @@ func SuccessApplyCampaign(c echo.Context) error {
 		})
 		return err
 	}
-	return c.JSON(http.StatusOK, "email sent")
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": fmt.Sprintf("email Sent to %s", user.Email),
+	})
 }
 
 func PaymentReceived(c echo.Context) error {

@@ -85,14 +85,19 @@ func registerNotificationRequest(c echo.Context, influencer *models.Influencer) 
 	}
 	payload := bytes.NewBuffer(j)
 	req, _ := http.NewRequest("POST", url+endpoint, payload)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, map[string]any{
 			"error":   err.Error(),
-			"details": "error at sending request to brand server",
+			"details": "error at sending request to notif server",
 		})
 		return err
 	}
 	defer res.Body.Close()
-	return nil
+	var responseMap map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, responseMap)
 }

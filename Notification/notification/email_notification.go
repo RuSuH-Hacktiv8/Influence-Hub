@@ -13,7 +13,7 @@ func SuccessRegisterEmail(user *models.User) error {
 	subject := "Konfirmasi Pendaftaran"
 	to := mail.NewEmail(user.Username, user.Email)
 	plainTextContent := "Terima kasih telah mendaftar!"
-	htmlContent, err := os.ReadFile("success_register.html")
+	htmlContent, err := os.ReadFile("notification/success_register.html")
 	if err != nil {
 		return err
 	}
