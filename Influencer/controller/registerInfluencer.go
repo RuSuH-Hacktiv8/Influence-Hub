@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
 	"influence-hub-influencer/middleware"
 	"influence-hub-influencer/models"
 	"net/http"
@@ -52,9 +54,40 @@ func (cn *Controller) Register(c echo.Context) error {
 			"message": "Failed to generate JWT",
 		})
 	}
+	if err := registerNotificationRequest(c, influencer); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed sending email notification",
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Register successful",
 		"token":   token,
 	})
+}
+
+func registerNotificationRequest(c echo.Context, influencer *models.Influencer) error {
+	// change the url when deploying on gcp
+	url := "localhost:8082"
+	endpoint := "/mails/success_register"
+	j, err := json.Marshal(map[string]any{
+		"username": influencer.Name,
+		"email":    influencer.Email,
+		"role":     "influencer",
+	})
+	if err != nil {
+		return err
+	}
+	payload := bytes.NewBuffer(j)
+	req, _ := http.NewRequest("POST", url+endpoint, payload)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]any{
+			"error":   err.Error(),
+			"details": "error at sending request to brand server",
+		})
+		return err
+	}
+	defer res.Body.Close()
+	return nil
 }
