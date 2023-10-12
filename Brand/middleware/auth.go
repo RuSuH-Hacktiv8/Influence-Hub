@@ -15,7 +15,7 @@ func NewAuth(repo repository.Repository) *Auth {
 	return &Auth{Authentication: repo}
 }
 
-func (a *Auth) AuthUser(next echo.HandlerFunc) echo.HandlerFunc {
+func (a *Auth) AuthBrand(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		token := c.Request().Header.Get("token")
 

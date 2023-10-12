@@ -1,7 +1,6 @@
 package config
 
 import (
-	"influence-hub-brand/models"
 	"log"
 	"os"
 
@@ -16,8 +15,8 @@ func ConnectDb() *gorm.DB {
 		log.Fatal(err)
 	}
 
-	if err := db.AutoMigrate(&models.Brand{}); err != nil {
-		log.Fatal(err)
-	}
+	// if err := db.AutoMigrate(&models.Campaign{}); err != nil {
+	// 	log.Fatal(err)
+	// }
 	return db
 }
