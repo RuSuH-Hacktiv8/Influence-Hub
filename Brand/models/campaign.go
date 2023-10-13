@@ -2,7 +2,7 @@ package models
 
 type Campaign struct {
 	ID               uint   `json:"id,omitempty" gorm:"primaryKey"`
-	BrandID          int    `json:"brand_id,omitempty"`
+	BrandID          uint    `json:"brand_id,omitempty"`
 	Name             string `json:"name,omitempty"`
 	Payment          int    `json:"payment,omitempty"`
 	MinimumFollowers int    `json:"minimum_followers,omitempty"`

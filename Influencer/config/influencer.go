@@ -13,7 +13,7 @@ import (
 
 func ConnectDb() *mongo.Database {
 
-	uri := os.Getenv("MONGO_KEY")
+	uri := os.Getenv("MONGO_DB")
 
 	if uri == "" {
 		log.Fatal("You must set your 'MONGODB_URI' environment variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")

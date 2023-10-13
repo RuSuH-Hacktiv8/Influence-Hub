@@ -6,6 +6,7 @@ import (
 	"influence-hub-influencer/models"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (r *Repository) FindByEmail(email string) (models.Influencer, error) {
@@ -21,7 +22,7 @@ func (r *Repository) FindByEmail(email string) (models.Influencer, error) {
 	return influencer, nil
 }
 
-func (r *Repository) FindById(id string) (models.Influencer, error) {
+func (r *Repository) FindById(id primitive.ObjectID) (models.Influencer, error) {
 	collection := r.DB.Collection("influencer")
 
 	var influencer models.Influencer
