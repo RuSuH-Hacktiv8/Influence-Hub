@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
 	"influence-hub-brand/middleware"
 	"influence-hub-brand/models"
 	"influence-hub-brand/repository"
@@ -53,6 +55,13 @@ func (bc BrandController) Register(c echo.Context) error {
 		})
 	}
 
+	if err := registerNotificationRequest(c, brand); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed sending email notification",
+			"error":   err.Error(),
+		})
+	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Register successful",
 		"token":   token,
@@ -94,4 +103,35 @@ func (bc BrandController) Login(c echo.Context) error {
 		"message": "Login successful",
 		"token":   token,
 	})
+}
+
+func registerNotificationRequest(c echo.Context, brand *models.Brand) error {
+	// change the url when deploying on gcp
+	url := "http://localhost:8082"
+	endpoint := "/mails/success_register"
+	j, err := json.Marshal(map[string]any{
+		"username": brand.Name,
+		"email":    brand.Email,
+		"role":     "brand",
+	})
+	if err != nil {
+		return err
+	}
+	payload := bytes.NewBuffer(j)
+	req, _ := http.NewRequest("POST", url+endpoint, payload)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]any{
+			"error":   err.Error(),
+			"details": "error at sending request to notif server",
+		})
+		return err
+	}
+	defer res.Body.Close()
+	var responseMap map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, responseMap)
 }
