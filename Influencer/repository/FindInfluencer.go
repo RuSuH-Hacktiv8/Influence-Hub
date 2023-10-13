@@ -33,3 +33,19 @@ func (r *Repository) FindById(id string) (models.Influencer, error) {
 
 	return influencer, nil
 }
+
+func (r *Repository) FindAll() ([]models.Influencer, error) {
+	collection := r.DB.Collection("influencer")
+
+	var influencers []models.Influencer
+
+	cursor, err := collection.Find(context.Background(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	if err := cursor.All(context.TODO(), &influencers); err != nil {
+		return nil, err
+	}
+
+	return influencers, nil
+}
