@@ -30,7 +30,7 @@ func SuccessApplyCampaign(user *models.User) error {
 	subject := "Konfirmasi apply Campaign"
 	to := mail.NewEmail(user.Username, user.Email)
 	plainTextContent := "Terima kasih telah mendaftar!"
-	htmlContent, err := os.ReadFile("success_apply_campaign.html")
+	htmlContent, err := os.ReadFile("notification/success_apply_campaign.html")
 	if err != nil {
 		return err
 	}
