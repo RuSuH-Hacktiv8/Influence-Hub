@@ -3,6 +3,7 @@ package main
 import (
 	"influence-hub-influencer/config"
 	"influence-hub-influencer/controller"
+	"influence-hub-influencer/middleware"
 	"influence-hub-influencer/repository"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -14,11 +15,13 @@ func main() {
 	repository := repository.NewRepository(db)
 	controller := controller.NewController(repository)
 
+	auth := middleware.NewAuth(*repository)
+
 	e := echo.New()
 	e.POST("/register", controller.Register)
 	e.POST("/login", controller.Login)
-	e.GET("/campaign", controller.ShowCampaign)
-	e.POST("/campaign", controller.ApplyCampaign)
-	e.POST("/payment", controller.RequestPayment)
+	e.GET("/campaign", controller.ShowCampaign, auth.AuthUser)
+	e.POST("/campaign", controller.ApplyCampaign, auth.AuthUser)
+	e.POST("/payment", controller.RequestPayment, auth.AuthUser)
 	e.Logger.Fatal(e.Start(":8080"))
 }

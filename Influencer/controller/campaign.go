@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (cn *Controller) ShowCampaign(c echo.Context) error {
@@ -54,12 +55,18 @@ func (cn *Controller) ShowCampaign(c echo.Context) error {
 }
 
 func (cn *Controller) ApplyCampaign(c echo.Context) error {
+	loggedinID := c.Get("loggedinInfluencer").(primitive.ObjectID)
 	// Deklarasikan variabel untuk objek Contract
 	var contract models.Contract
 
+	contract.InfluencerID = loggedinID
+
 	// Bind data JSON dari body permintaan ke objek contract
 	if err := c.Bind(&contract); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Failed to bind request data"})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error":   err.Error(),
+			"details": "error when binding contract",
+		})
 	}
 
 	// Marshal objek contract ke JSON
@@ -75,7 +82,31 @@ func (cn *Controller) ApplyCampaign(c echo.Context) error {
 	}
 	defer resp.Body.Close()
 
-	if err := ApplyNotificationRequest(c, &contract); err != nil {
+	if resp.StatusCode > 299 {
+		var responseMap map[string]any
+		if err := json.NewDecoder(resp.Body).Decode(&responseMap); err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+				"details": "error on decoding response from brand server",
+			})
+		}
+		return c.JSON(resp.StatusCode, map[string]interface{}{
+			"error":  "Brand server returned a non-200 status code",
+			"status": resp.Status,
+			"resp": responseMap,
+		})
+	}
+
+	// get influencer data
+	influencer, err := cn.Controller.FindById(loggedinID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"error":   err.Error(),
+			"details": "Failed to marshal contract data",
+		})
+	}
+
+	if err := ApplyNotificationRequest(c, &influencer); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed sending email notification",
 			"error":   err.Error(),
@@ -86,14 +117,12 @@ func (cn *Controller) ApplyCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Campaign applied successfully"})
 }
 
-func ApplyNotificationRequest(c echo.Context, contract *models.Contract) error {
+func ApplyNotificationRequest(c echo.Context, influencer *models.Influencer) error {
 	// change the url when deploying on gcp
 	url := "http://localhost:8082"
 	endpoint := "/mails/success_apply_campaign"
 	j, err := json.Marshal(map[string]any{
-		"ID":           contract.ID,
-		"CampaignID":   contract.CampaignID,
-		"InfluencerID": contract.InfluencerID,
+		"email": influencer.Email,
 	})
 	if err != nil {
 		return err

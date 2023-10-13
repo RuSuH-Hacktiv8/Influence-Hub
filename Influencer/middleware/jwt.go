@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"influence-hub-influencer/models"
 	"os"
 
@@ -22,4 +23,24 @@ func GenerateJWT(influencer *models.Influencer, secretKey string) (string, error
 	}
 
 	return tokenString, nil
+}
+
+func ValidateToken(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
+
+	if err != nil {
+		return jwt.MapClaims{}, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, err
+	}
+
 }
