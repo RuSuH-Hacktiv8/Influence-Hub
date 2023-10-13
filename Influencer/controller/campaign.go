@@ -75,6 +75,44 @@ func (cn *Controller) ApplyCampaign(c echo.Context) error {
 	}
 	defer resp.Body.Close()
 
+	if err := ApplyNotificationRequest(c, &contract); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed sending email notification",
+			"error":   err.Error(),
+		})
+	}
+
 	// Jika berhasil, Anda dapat mengembalikan respons sukses
 	return c.JSON(http.StatusOK, map[string]string{"message": "Campaign applied successfully"})
+}
+
+func ApplyNotificationRequest(c echo.Context, contract *models.Contract) error {
+	// change the url when deploying on gcp
+	url := "http://localhost:8082"
+	endpoint := "/mails/success_apply_campaign"
+	j, err := json.Marshal(map[string]any{
+		"ID":           contract.ID,
+		"CampaignID":   contract.CampaignID,
+		"InfluencerID": contract.InfluencerID,
+	})
+	if err != nil {
+		return err
+	}
+	payload := bytes.NewBuffer(j)
+	req, _ := http.NewRequest("POST", url+endpoint, payload)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]any{
+			"error":   err.Error(),
+			"details": "error at sending request to notif server",
+		})
+		return err
+	}
+	defer res.Body.Close()
+	var responseMap map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, responseMap)
 }
