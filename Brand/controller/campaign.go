@@ -18,11 +18,17 @@ func NewCampaignController(repo repository.Repository) CampaignController {
 }
 
 func (cc CampaignController) CreateCampaign(c echo.Context) error {
+	// Mengambil brandID dari klaim token
+	brandID := c.Get("loggedInBrand").(uint)
+
 	campaign := new(models.Campaign)
 
 	if err := c.Bind(campaign); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid request")
 	}
+
+	// Set brandID pada campaign
+	campaign.BrandID = brandID
 
 	newCampaign, err := cc.Repo.AddCampaign(*campaign)
 	if err != nil {
@@ -68,28 +74,8 @@ func (cc CampaignController) DeleteCampaign(c echo.Context) error {
 	})
 }
 
-func (c *CampaignController) AddCampaign(e echo.Context) error {
-	campaign := new(models.Campaign)
-	if err := e.Bind(campaign); err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid request")
-	}
-
-	campaigns, err := c.Repo.AddCampaign(*campaign)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Failed to add campaign",
-		})
-	}
-
-	return e.JSON(http.StatusOK, echo.Map{
-		"message":   "Campaign added successfully",
-		"campaigns": campaigns,
-	})
-
-}
-
-func (c *CampaignController) GetCampaign(e echo.Context) error {
-	id := e.Param("id")
+func (cc *CampaignController) GetCampaign(e echo.Context) error {
+	id := e.Get("loggedInBrand").(string)
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, echo.Map{
@@ -97,7 +83,7 @@ func (c *CampaignController) GetCampaign(e echo.Context) error {
 		})
 	}
 
-	campaigns, err := c.Repo.GetCampaign(idInt)
+	campaigns, err := cc.Repo.GetCampaign(idInt)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to get campaigns",
@@ -110,9 +96,9 @@ func (c *CampaignController) GetCampaign(e echo.Context) error {
 	})
 }
 
-func (c *CampaignController) GetAllCampaign(e echo.Context) error {
+func (cc *CampaignController) GetAllCampaign(e echo.Context) error {
 	// Panggil metode GetAllCampaign dari repository
-	campaigns, err := c.Repo.GetAllCampaign()
+	campaigns, err := cc.Repo.GetAllCampaign()
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}

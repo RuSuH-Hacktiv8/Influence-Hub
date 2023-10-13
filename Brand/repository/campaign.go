@@ -16,6 +16,20 @@ func (r *Repository) AddCampaign(campaign models.Campaign) (models.Campaign, err
 	return campaign, nil
 }
 
+func (r *Repository) GetCampaignByID(brandid int, id int) ([]models.Campaign, error) {
+	campaign := []models.Campaign{}
+	query := r.DB.Table("campaigns").Where("BrandID=?", brandid).Find(campaign)
+	if query.Error != nil {
+		if query.Error == gorm.ErrRecordNotFound {
+			return []models.Campaign{}, errors.New("user not found")
+		}
+
+		return []models.Campaign{}, query.Error
+	}
+
+	return campaign, nil
+}
+
 func (r *Repository) GetCampaign(brandid int) ([]models.Campaign, error) {
 	campaign := []models.Campaign{}
 	query := r.DB.Table("campaigns").Where("BrandID=?", brandid).Find(campaign)
